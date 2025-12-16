@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -19,6 +19,17 @@ const Index = () => {
     message: ''
   });
   const [isOpen, setIsOpen] = useState(false);
+  const [showStickyButton, setShowStickyButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      setShowStickyButton(scrollPosition > 500);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToForm = () => {
     const formSection = document.getElementById('contact-form');
@@ -98,7 +109,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="mb-3 font-medium text-gray-700">Клиент: «Дайте скидку 0,5% — и подпишем».</p>
-                <p className="text-red-600 font-semibold">Итог: потери маржи + закрепляется привычка «дожимать».</p>
+                <p className="text-red-600 font-semibold">Итог: потеря маржи + закрепляется привычка «дожимать».</p>
               </CardContent>
             </Card>
 
@@ -128,7 +139,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="mb-3 font-medium text-gray-700">КК, СБ, юристы возвращают на доработки.</p>
-                <p className="text-red-600 font-semibold">Итог: сроки растут, клиент уходит к более быстрому конкуренту.</p>
+                <p className="text-red-600 font-semibold">Итог: сроки растут, клиент уходит к более быстрому и гибкому конкуренту.</p>
               </CardContent>
             </Card>
           </div>
@@ -139,7 +150,7 @@ const Index = () => {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-4xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-center text-bank-dark">
-            Как выглядит тренинг
+            Николай Лукша о тренинге «ДРАЙВЕР СДЕЛКИ»
           </h2>
           
           <div className="relative aspect-video bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
@@ -475,12 +486,11 @@ const Index = () => {
       {/* Section 7: Cases and Reviews */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center text-bank-dark">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-12 text-center text-bank-dark">
             Проекты в банковском секторе: типовые задачи и эффекты
           </h2>
-          <p className="text-center text-gray-600 mb-12">(без раскрытия клиента)</p>
           
-          <div className="space-y-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <Card className="border-l-4 border-l-bank-blue hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-3">
@@ -836,6 +846,21 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Sticky CTA Button */}
+      <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
+        showStickyButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'
+      }`}>
+        <Button 
+          size="lg" 
+          onClick={scrollToForm} 
+          className="bg-success-green hover:bg-green-600 text-white font-bold px-6 py-4 rounded-full shadow-2xl hover:shadow-3xl transition-all flex items-center gap-2"
+        >
+          <Icon name="MessageSquare" size={20} />
+          <span className="hidden sm:inline">ОСТАВИТЬ ЗАЯВКУ</span>
+          <span className="sm:hidden">Заявка</span>
+        </Button>
+      </div>
     </div>
   );
 };
