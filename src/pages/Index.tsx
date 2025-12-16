@@ -20,16 +20,47 @@ const Index = () => {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [showStickyButton, setShowStickyButton] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setShowStickyButton(scrollPosition > 500);
+      
+      const elements = document.querySelectorAll('.animate-on-scroll');
+      elements.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight - 100;
+        if (isVisible) {
+          element.classList.add('is-visible');
+        }
+      });
     };
     
     window.addEventListener('scroll', handleScroll);
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !videoLoaded) {
+            setVideoLoaded(true);
+          }
+        });
+      },
+      { rootMargin: '100px' }
+    );
+
+    const videoSection = document.getElementById('video-section');
+    if (videoSection) {
+      observer.observe(videoSection);
+    }
+
+    return () => observer.disconnect();
+  }, [videoLoaded]);
 
   const scrollToForm = () => {
     const formSection = document.getElementById('contact-form');
@@ -91,7 +122,7 @@ const Index = () => {
       </section>
 
       {/* Problem Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 animate-on-scroll">
         <div className="container mx-auto px-4 max-w-6xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-bank-dark">
             3 ситуации, которые «съедают» маржу, сроки и управляемость сделки
@@ -147,7 +178,7 @@ const Index = () => {
       </section>
 
       {/* Video Section */}
-      <section className="py-20 bg-white">
+      <section id="video-section" className="py-20 bg-white animate-on-scroll">
         <div className="container mx-auto px-4 max-w-4xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-center text-bank-dark">
             Николай Лукша о тренинге «ДРАЙВЕР СДЕЛКИ»
@@ -175,7 +206,7 @@ const Index = () => {
       </section>
 
       {/* Artifacts Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 animate-on-scroll">
         <div className="container mx-auto px-4 max-w-6xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center text-bank-dark">
             Что получит команда: рабочие инструменты
@@ -251,7 +282,7 @@ const Index = () => {
       </section>
 
       {/* Skills Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white animate-on-scroll">
         <div className="container mx-auto px-4 max-w-5xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-bank-dark">
             5 навыков, которые начинают применять сразу после тренинга
@@ -302,7 +333,7 @@ const Index = () => {
       </section>
 
       {/* Key Feature Section - Internal Approvals */}
-      <section className="py-20 bg-gradient-to-br from-bank-blue to-bank-dark text-white">
+      <section className="py-20 bg-gradient-to-br from-bank-blue to-bank-dark text-white animate-on-scroll">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-8">
             <div className="inline-block bg-success-green text-white px-4 py-2 rounded-full text-sm font-bold mb-4">
@@ -341,7 +372,7 @@ const Index = () => {
       </section>
 
       {/* Training Process */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white animate-on-scroll">
         <div className="container mx-auto px-4 max-w-6xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-bank-dark">
             Как проходит тренинг
@@ -408,7 +439,7 @@ const Index = () => {
       </section>
 
       {/* Results Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 animate-on-scroll">
         <div className="container mx-auto px-4 max-w-6xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-bank-dark">
             Практические результаты после внедрения
@@ -484,7 +515,7 @@ const Index = () => {
       </section>
 
       {/* Section 7: Cases and Reviews */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white animate-on-scroll">
         <div className="container mx-auto px-4 max-w-6xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-12 text-center text-bank-dark">
             Проекты в банковском секторе: типовые задачи и эффекты
@@ -568,7 +599,7 @@ const Index = () => {
       </section>
 
       {/* Section 8: About Trainer */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 animate-on-scroll">
         <div className="container mx-auto px-4 max-w-4xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-center text-bank-dark">
             О тренере
@@ -619,7 +650,7 @@ const Index = () => {
       </section>
 
       {/* Section 9: Pricing */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white animate-on-scroll">
         <div className="container mx-auto px-4 max-w-5xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-bank-dark">
             Стоимость и состав
@@ -665,7 +696,7 @@ const Index = () => {
       </section>
 
       {/* Section 10: How to Start */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 animate-on-scroll">
         <div className="container mx-auto px-4 max-w-5xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-bank-dark">
             Как начать
@@ -705,8 +736,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Section 11: FAQ */}
-      <section className="py-20 bg-white">
+      {/* Section 11: FAQ */>
+      <section className="py-20 bg-white animate-on-scroll">
         <div className="container mx-auto px-4 max-w-4xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-bank-dark">
             Частые вопросы
