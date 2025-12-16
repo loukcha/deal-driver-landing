@@ -21,6 +21,7 @@ const Index = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showStickyButton, setShowStickyButton] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,8 +72,24 @@ const Index = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     try {
+      // Get reCAPTCHA token
+      const recaptchaToken = await new Promise<string>((resolve, reject) => {
+        if (typeof window.grecaptcha === 'undefined') {
+          reject(new Error('reCAPTCHA not loaded'));
+          return;
+        }
+        
+        window.grecaptcha.ready(() => {
+          window.grecaptcha
+            .execute('6LdYourSiteKeyHere', { action: 'submit' })
+            .then(resolve)
+            .catch(reject);
+        });
+      });
+
       const response = await fetch('/send-mail.php', {
         method: 'POST',
         headers: {
@@ -82,10 +99,13 @@ const Index = () => {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
+          recaptcha_token: recaptchaToken,
         }),
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         toast({
           title: "Заявка отправлена!",
           description: "Мы свяжемся с вами в течение 3 часов.",
@@ -94,18 +114,21 @@ const Index = () => {
       } else {
         toast({
           title: "Ошибка отправки",
-          description: "Попробуйте позже или позвоните нам.",
+          description: result.error || "Попробуйте позже или позвоните нам.",
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.error('Form submission error:', error);
       toast({
         title: "Ошибка отправки",
         description: "Проверьте подключение к интернету.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
+      setIsOpen(false);
     }
-    setIsOpen(false);
   };
 
   return (
@@ -854,10 +877,17 @@ const Index = () => {
                   <Label htmlFor="final-phone" className="text-gray-700">Телефон*</Label>
                   <Input id="final-phone" type="tel" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="bg-white" />
                 </div>
-                <Button type="submit" className="w-full bg-success-green hover:bg-green-600 text-white font-bold py-4 sm:py-6">
-                  ОСТАВИТЬ ЗАЯВКУ
+                <Button type="submit" disabled={isSubmitting} className="w-full bg-success-green hover:bg-green-600 text-white font-bold py-4 sm:py-6 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {isSubmitting ? 'Отправка...' : 'ОСТАВИТЬ ЗАЯВКУ'}
                 </Button>
                 <p className="text-xs sm:text-sm text-center text-gray-600 italic">*Мы свяжемся с вами в течение 3 часов.</p>
+                <p className="text-xs text-center text-gray-500 mt-2">
+                  Этот сайт защищен reCAPTCHA. Применяются{' '}
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">Политика конфиденциальности</a>
+                  {' '}и{' '}
+                  <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">Условия использования</a>
+                  {' '}Google.
+                </p>
               </form>
             </CardContent>
           </Card>

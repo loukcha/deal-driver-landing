@@ -20,6 +20,25 @@ $data = json_decode(file_get_contents('php://input'), true);
 $name = isset($data['name']) ? htmlspecialchars(trim($data['name'])) : '';
 $email = isset($data['email']) ? htmlspecialchars(trim($data['email'])) : '';
 $phone = isset($data['phone']) ? htmlspecialchars(trim($data['phone'])) : '';
+$recaptcha_token = isset($data['recaptcha_token']) ? $data['recaptcha_token'] : '';
+
+// Verify reCAPTCHA
+if (!empty($recaptcha_token)) {
+    $recaptcha_secret = '6LdYourSecretKeyHere'; // ВАЖНО: Замените на ваш Secret Key
+    $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+    
+    $recaptcha_response = file_get_contents($recaptcha_url . '?secret=' . $recaptcha_secret . '&response=' . $recaptcha_token);
+    $recaptcha_data = json_decode($recaptcha_response);
+    
+    if (!$recaptcha_data->success || $recaptcha_data->score < 0.5) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Проверка reCAPTCHA не пройдена. Попробуйте еще раз.'
+        ]);
+        exit;
+    }
+}
 
 if (empty($name) || empty($email) || empty($phone)) {
     http_response_code(400);
@@ -74,6 +93,6 @@ if (mail($to, $subject, $message, $headers)) {
     echo json_encode(['success' => true, 'message' => 'Заявка отправлена']);
 } else {
     http_response_code(500);
-    echo json_encode(['error' => 'Ошибка отправки письма']);
+    echo json_encode(['success' => false, 'error' => 'Ошибка отправки письма']);
 }
 ?>
